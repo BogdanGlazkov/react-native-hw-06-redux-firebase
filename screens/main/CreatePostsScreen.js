@@ -11,10 +11,12 @@ import {
 } from "react-native";
 import { Camera } from "expo-camera";
 import * as Location from "expo-location";
+import * as ImagePicker from "expo-image-picker";
 
 const icons = {
   arrow: require("../../assets/images/arrow-left.png"),
   camera: require("../../assets/images/camera.png"),
+  cameraEdit: require("../../assets/images/camera-edit.png"),
   map: require("../../assets/images/map.png"),
   trash: require("../../assets/images/trash.png"),
 };
@@ -43,12 +45,31 @@ const CreatePostsScreen = ({ navigation }) => {
     setLocation(place);
   };
 
-  const sendPhoto = async () => {
+  const pickPhoto = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [343, 240],
+      quality: 1,
+    });
+    if (!result.canceled) {
+      setPhoto(result.assets[0].uri);
+      const place = await Location.getCurrentPositionAsync({});
+      setLocation(place);
+    }
+  };
+
+  const sendPhoto = () => {
+    console.log(1, photo, 2, title, 3, locationTitle, 4, location);
     navigation.navigate("Posts", { photo, title, locationTitle, location });
     setPhoto(null);
     setTitle("");
     setLocation(null);
     setLocationTitle("");
+  };
+
+  const editPhoto = () => {
+    setPhoto(null);
   };
 
   if (!permission?.granted) {
@@ -96,15 +117,19 @@ const CreatePostsScreen = ({ navigation }) => {
             <View style={styles.photo}>
               {photo ? (
                 <>
-                  <Image
-                    style={styles.takenPhoto}
-                    source={{ uri: photo }}
-                  ></Image>
+                  <Image style={styles.takenPhoto} source={{ uri: photo }} />
+                  <TouchableOpacity
+                    style={{
+                      ...styles.photoIconWrp,
+                      backgroundColor: "rgba(255, 255, 255, 0.3)",
+                    }}
+                    onPress={editPhoto}
+                  >
+                    <Image style={styles.photoIcon} source={icons.cameraEdit} />
+                  </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.photoTextWrapper}
-                    onPress={() => {
-                      setPhoto(null);
-                    }}
+                    onPress={editPhoto}
                   >
                     <Text style={styles.photoText}>Edit photo</Text>
                   </TouchableOpacity>
@@ -121,7 +146,10 @@ const CreatePostsScreen = ({ navigation }) => {
                       </TouchableOpacity>
                     </Camera>
                   </View>
-                  <TouchableOpacity style={styles.photoTextWrapper}>
+                  <TouchableOpacity
+                    style={styles.photoTextWrapper}
+                    onPress={pickPhoto}
+                  >
                     <Text style={styles.photoText}>Download photo</Text>
                   </TouchableOpacity>
                 </>

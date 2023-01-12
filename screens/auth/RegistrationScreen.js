@@ -4,7 +4,6 @@ import {
   Text,
   View,
   ImageBackground,
-  Image,
   TextInput,
   TouchableOpacity,
   Platform,
@@ -13,6 +12,7 @@ import {
   TouchableWithoutFeedback,
   Dimensions,
 } from "react-native";
+import Avatar from "../../components/Avatar";
 
 const initialState = {
   login: "",
@@ -69,15 +69,7 @@ export default function RegistrationScreen({ navigation }) {
                 width: dimensions,
               }}
             >
-              <View style={styles.photo}>
-                <TextInput style={styles.photoInput} onFocus={() => {}} />
-                <TouchableOpacity style={styles.photoIconWrp}>
-                  <Image
-                    style={styles.photoIcon}
-                    source={require("../../assets/images/add.png")}
-                  />
-                </TouchableOpacity>
-              </View>
+              <Avatar />
               <View style={styles.header}>
                 <Text style={styles.headerTitle}>Registration</Text>
               </View>
@@ -196,28 +188,6 @@ const styles = StyleSheet.create({
     paddingTop: 92,
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
-  },
-  photo: {
-    position: "absolute",
-    top: -60,
-    alignSelf: "center",
-    width: 120,
-    height: 120,
-    marginHorizontal: "auto",
-    borderRadius: 16,
-    backgroundColor: "#F6F6F6",
-  },
-  photoInput: {},
-  photoIconWrp: {
-    position: "absolute",
-    bottom: 14,
-    right: -12,
-    width: 25,
-    height: 25,
-  },
-  photoIcon: {
-    width: 25,
-    height: 25,
   },
   header: {
     alignItems: "center",

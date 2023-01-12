@@ -1,26 +1,43 @@
 import React from "react";
 
+const location = {
+  coords: {
+    accuracy: 600,
+    altitude: 0,
+    altitudeAccuracy: 0,
+    heading: 0,
+    latitude: 37.4220936,
+    longitude: -122.083922,
+    speed: 0,
+  },
+  mocked: false,
+  timestamp: 1673563251459,
+};
+
 const posts = [
   {
     title: "Forest",
-    image: require("./assets/images/post-forest.jpg"),
+    photo: require("./assets/images/post-forest.jpg"),
     comments: 8,
     likes: 153,
-    location: "Ukraine",
+    locationTitle: "Ukraine",
+    location,
   },
   {
     title: "Sunset on Black Sea",
-    image: require("./assets/images/post-sunset.jpg"),
+    photo: require("./assets/images/post-sunset.jpg"),
     comments: 3,
     likes: 200,
-    location: "Ukraine",
+    locationTitle: "Ukraine",
+    location,
   },
   {
     title: "Old house in Venice",
-    image: require("./assets/images/post-house.jpg"),
+    photo: require("./assets/images/post-house.jpg"),
     comments: 50,
     likes: 200,
-    location: "Italy",
+    locationTitle: "Italy",
+    location,
   },
 ];
 

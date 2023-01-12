@@ -15,7 +15,7 @@ const MainStack = createBottomTabNavigator();
 const useRoute = (isAuth) => {
   if (!isAuth) {
     return (
-      <AuthStack.Navigator>
+      <AuthStack.Navigator initialRouteName="Login">
         <AuthStack.Screen
           options={{ headerShown: false }}
           name="Login"
@@ -32,6 +32,7 @@ const useRoute = (isAuth) => {
 
   return (
     <MainStack.Navigator
+      initialRouteName="Home"
       screenOptions={{
         tabBarShowLabel: false,
         tabBarStyle: [
