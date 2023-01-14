@@ -10,23 +10,23 @@ import { appFirebase } from "../../firebase/config";
 import { authSlice } from "./authReducer";
 
 const auth = getAuth(appFirebase);
+const { updateUserProfile, authStateChange, authLogOut } = authSlice.actions;
 
 export const authSignUp =
   ({ login, email, password }) =>
   async (dispatch) => {
     try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const user = userCredential.user;
-      dispatch(authSlice.actions.updateUserProfile({ email }));
-      console.log(333, user);
-      //   await updateProfile(auth.currentUser, {
-      //     displayName: login,
-      //   });
-      //   console.log("user ===> ", user);
+      await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(auth.currentUser, {
+        displayName: login,
+      });
+      const user = await auth.currentUser;
+      const userProfile = {
+        userId: user.uid,
+        login: user.displayName,
+        email: user.email,
+      };
+      dispatch(updateUserProfile(userProfile));
     } catch (error) {
       console.log("error.message: ", error.message);
     }
@@ -48,4 +48,29 @@ export const authLogIn =
     }
   };
 
-export const authLogOut = async (dispatch, getState) => {};
+export const authRefresh = () => async (dispatch) => {
+  onAuthStateChanged(auth, (user) => {
+    try {
+      if (user) {
+        const userProfile = {
+          userId: user.uid,
+          login: user.displayName,
+          email: user.email,
+        };
+        dispatch(updateUserProfile(userProfile));
+        dispatch(authStateChange({ stateChange: true }));
+      }
+    } catch (error) {
+      console.log("error.message: ", error.message);
+    }
+  });
+};
+
+export const authExit = () => async (dispatch, getState) => {
+  try {
+    await signOut(auth);
+    dispatch(authLogOut());
+  } catch (error) {
+    console.log("error.message: ", error.message);
+  }
+};

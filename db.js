@@ -17,7 +17,8 @@ const location = {
 const posts = [
   {
     title: "Forest",
-    photo: require("./assets/images/post-forest.jpg"),
+    photo:
+      "http://192.168.0.101:19000/node_modules%5Cexpo%5CAppEntry.bundle?platform=android&dev=true&hot=false:84153:56",
     comments: 8,
     likes: 153,
     locationTitle: "Ukraine",
@@ -25,7 +26,8 @@ const posts = [
   },
   {
     title: "Sunset on Black Sea",
-    photo: require("./assets/images/post-sunset.jpg"),
+    photo:
+      "http://192.168.0.101:19000/node_modules%5Cexpo%5CAppEntry.bundle?platform=android&dev=true&hot=false:84153:56",
     comments: 3,
     likes: 200,
     locationTitle: "Ukraine",
@@ -33,7 +35,8 @@ const posts = [
   },
   {
     title: "Old house in Venice",
-    photo: require("./assets/images/post-house.jpg"),
+    photo:
+      "http://192.168.0.101:19000/node_modules%5Cexpo%5CAppEntry.bundle?platform=android&dev=true&hot=false:84153:56",
     comments: 50,
     likes: 200,
     locationTitle: "Italy",

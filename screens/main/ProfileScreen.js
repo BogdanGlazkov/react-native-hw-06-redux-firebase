@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
 import {
   StyleSheet,
   Text,
@@ -13,9 +14,11 @@ import {
 import Avatar from "../../components/Avatar";
 import Post from "../../components/Post";
 import posts from "../../db";
+import { authExit } from "../../redux/auth/authOperations";
 
 const ProfileScreen = ({ navigation }) => {
   const [dimensions, setDimensions] = useState(Dimensions.get("window").width);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const onChangeWidth = () => {
@@ -28,6 +31,10 @@ const ProfileScreen = ({ navigation }) => {
     };
   }, []);
 
+  const onLogOut = () => {
+    dispatch(authExit());
+  };
+
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -36,7 +43,7 @@ const ProfileScreen = ({ navigation }) => {
       >
         <SafeAreaView style={{ ...styles.wrapper, width: dimensions }}>
           <Avatar />
-          <TouchableOpacity style={styles.photoExit}>
+          <TouchableOpacity style={styles.photoExit} onPress={onLogOut}>
             <Image
               style={styles.photoIconExit}
               source={require("../../assets/images/log-out.png")}

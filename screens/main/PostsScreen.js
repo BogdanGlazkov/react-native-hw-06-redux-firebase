@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
 import {
   View,
   Text,
@@ -9,6 +10,7 @@ import {
   SafeAreaView,
 } from "react-native";
 import Post from "../../components/Post";
+import { authExit } from "../../redux/auth/authOperations";
 
 const icons = {
   logOut: require("../../assets/images/log-out.png"),
@@ -17,12 +19,17 @@ const icons = {
 
 const PostsScreen = ({ route, navigation }) => {
   const [posts, setPosts] = useState([]);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (route.params) {
       setPosts((prevState) => [route.params, ...prevState]);
     }
   }, [route.params]);
+
+  const onLogOut = () => {
+    dispatch(authExit());
+  };
 
   return (
     <View style={styles.container}>
@@ -32,7 +39,7 @@ const PostsScreen = ({ route, navigation }) => {
           <View>
             <Text style={styles.headerTitle}>Posts</Text>
           </View>
-          <TouchableOpacity style={styles.exit}>
+          <TouchableOpacity style={styles.exit} onPress={onLogOut}>
             <Image source={icons.logOut} />
           </TouchableOpacity>
         </View>
