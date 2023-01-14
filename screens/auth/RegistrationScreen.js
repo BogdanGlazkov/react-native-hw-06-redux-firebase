@@ -12,7 +12,9 @@ import {
   TouchableWithoutFeedback,
   Dimensions,
 } from "react-native";
+import { useDispatch } from "react-redux";
 import Avatar from "../../components/Avatar";
+import { authSignUp } from "../../redux/auth/authOperations";
 
 const initialState = {
   login: "",
@@ -28,6 +30,7 @@ export default function RegistrationScreen({ navigation }) {
   const [isLoginActive, setIsLoginActive] = useState(false);
   const [isEmailActive, setIsEmailActive] = useState(false);
   const [isPasswordActive, setIsPasswordActive] = useState(false);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const onChangeWidth = () => {
@@ -47,9 +50,8 @@ export default function RegistrationScreen({ navigation }) {
 
   const onSubmit = () => {
     keyboardHide();
-    console.log(state);
+    dispatch(authSignUp(state));
     setState(initialState);
-    navigation.navigate("Home");
   };
 
   return (
@@ -146,6 +148,7 @@ export default function RegistrationScreen({ navigation }) {
                   <TouchableOpacity
                     activeOpacity={0.8}
                     style={styles.btn}
+                    disabled={!state.login || !state.email || !state.password}
                     onPress={onSubmit}
                   >
                     <Text style={styles.btnTitle}>Register</Text>

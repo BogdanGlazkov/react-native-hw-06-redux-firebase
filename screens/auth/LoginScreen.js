@@ -12,6 +12,8 @@ import {
   TouchableWithoutFeedback,
   Dimensions,
 } from "react-native";
+import { useDispatch } from "react-redux";
+import { authLogIn } from "../../redux/auth/authOperations";
 
 const initialState = {
   email: "",
@@ -25,6 +27,7 @@ export default function LoginScreen({ navigation }) {
   const [dimensions, setDimensions] = useState(Dimensions.get("window").width);
   const [isEmailActive, setIsEmailActive] = useState(false);
   const [isPasswordActive, setIsPasswordActive] = useState(false);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const onChangeWidth = () => {
@@ -44,9 +47,8 @@ export default function LoginScreen({ navigation }) {
 
   const onSubmit = () => {
     keyboardHide();
-    console.log(state);
+    dispatch(authLogIn(state));
     setState(initialState);
-    navigation.navigate("Home");
   };
 
   return (
@@ -119,6 +121,7 @@ export default function LoginScreen({ navigation }) {
                     activeOpacity={0.8}
                     style={styles.btn}
                     onPress={onSubmit}
+                    disabled={!state.email || !state.password}
                   >
                     <Text style={styles.btnTitle}>Enter</Text>
                   </TouchableOpacity>
