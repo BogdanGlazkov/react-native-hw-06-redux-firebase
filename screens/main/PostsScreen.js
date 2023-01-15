@@ -9,8 +9,10 @@ import {
   FlatList,
   SafeAreaView,
 } from "react-native";
+import { collection, getDocs } from "firebase/firestore";
 import Post from "../../components/Post";
 import { authExit } from "../../redux/auth/authOperations";
+import { db } from "../../firebase/config";
 
 const icons = {
   logOut: require("../../assets/images/log-out.png"),
@@ -21,11 +23,14 @@ const PostsScreen = ({ route, navigation }) => {
   const [posts, setPosts] = useState([]);
   const dispatch = useDispatch();
 
+  const getAllPosts = async () => {
+    const querySnapshot = await getDocs(collection(db, "posts"));
+    setPosts(querySnapshot.forEach((doc) => ({ ...doc, id: doc.id })));
+  };
+
   useEffect(() => {
-    if (route.params) {
-      setPosts((prevState) => [route.params, ...prevState]);
-    }
-  }, [route.params]);
+    getAllPosts();
+  }, []);
 
   const onLogOut = () => {
     dispatch(authExit());

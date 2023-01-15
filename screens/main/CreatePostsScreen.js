@@ -15,7 +15,8 @@ import { Camera } from "expo-camera";
 import * as Location from "expo-location";
 import * as ImagePicker from "expo-image-picker";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
-import { storage } from "../../firebase/config";
+import { collection, addDoc } from "firebase/firestore";
+import { storage, db } from "../../firebase/config";
 
 const icons = {
   arrow: require("../../assets/images/arrow-left.png"),
@@ -67,7 +68,7 @@ const CreatePostsScreen = ({ navigation }) => {
 
   const sendPhoto = () => {
     uploadPost();
-    navigation.navigate("Posts", { photo, title, locationTitle, location });
+    navigation.navigate("Posts");
     setPhoto(null);
     setTitle("");
     setLocation(null);
@@ -90,7 +91,7 @@ const CreatePostsScreen = ({ navigation }) => {
 
       const result = await uploadBytesResumable(reference, file);
       const processedPhoto = await getDownloadURL(result.ref);
-      console.log("processedPhoto ======> ", processedPhoto);
+      return processedPhoto;
     } catch (error) {
       Alert.alert("Something went wrong. Try again, please");
       console.log(error.message);
@@ -98,8 +99,23 @@ const CreatePostsScreen = ({ navigation }) => {
   };
 
   const uploadPost = async () => {
-    const createdPhoto = await uploadPhoto();
-    console.log("user ===>", userId, login, email);
+    try {
+      const createdPhoto = await uploadPhoto();
+      console.log("user ===>", userId, login, email);
+
+      const result = await addDoc(collection(db, "posts"), {
+        photoUrl: createdPhoto,
+        title,
+        locationTitle,
+        location,
+        comments: [],
+        likes: 0,
+        owner: userId,
+      });
+      console.log(result, result.id);
+    } catch (error) {
+      console.log(error.message);
+    }
   };
 
   if (!permission?.granted) {

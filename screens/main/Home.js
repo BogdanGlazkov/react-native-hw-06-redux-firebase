@@ -15,16 +15,8 @@ const Home = () => {
         name="Posts"
         component={PostsScreen}
       />
-      <HomeStack.Screen
-        // options={{ headerShown: false }}
-        name="Comments"
-        component={CommentsScreen}
-      />
-      <HomeStack.Screen
-        // options={{ headerShown: false }}
-        name="Map"
-        component={MapScreen}
-      />
+      <HomeStack.Screen name="Comments" component={CommentsScreen} />
+      <HomeStack.Screen name="Map" component={MapScreen} />
     </HomeStack.Navigator>
   );
 };
