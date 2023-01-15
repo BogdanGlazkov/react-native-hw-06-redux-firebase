@@ -5,7 +5,6 @@ import useRoute from "../router";
 import { authRefresh } from "../redux/auth/authOperations";
 
 const Main = () => {
-  const [user, setUser] = useState(null);
   const { stateChange, login } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
@@ -13,8 +12,8 @@ const Main = () => {
 
   useEffect(() => {
     dispatch(authRefresh());
-    console.log("user:---->", user, login);
-  }, [user, login]);
+    console.log("login ------> ", login);
+  }, [login]);
 
   return <NavigationContainer>{routing}</NavigationContainer>;
 };
