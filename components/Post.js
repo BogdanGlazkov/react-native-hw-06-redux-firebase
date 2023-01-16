@@ -11,7 +11,7 @@ export default function Post({ item, navigation }) {
   return (
     <View style={styles.post}>
       <View style={styles.postImgWrapper}>
-        <Image style={styles.postImg} source={{ uri: item.photo }} />
+        <Image style={styles.postImg} source={{ uri: item.photoUrl }} />
       </View>
       <View style={styles.postTitle}>
         <Text style={styles.postTitleText}>{item.title}</Text>

@@ -103,7 +103,7 @@ const CreatePostsScreen = ({ navigation }) => {
       const createdPhoto = await uploadPhoto();
       console.log("user ===>", userId, login, email);
 
-      const result = await addDoc(collection(db, "posts"), {
+      await addDoc(collection(db, "posts"), {
         photoUrl: createdPhoto,
         title,
         locationTitle,
@@ -112,7 +112,6 @@ const CreatePostsScreen = ({ navigation }) => {
         likes: 0,
         owner: userId,
       });
-      console.log(result, result.id);
     } catch (error) {
       console.log(error.message);
     }

@@ -19,13 +19,22 @@ const icons = {
   user: require("../../assets/images/user-photo.png"),
 };
 
-const PostsScreen = ({ route, navigation }) => {
+const PostsScreen = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
   const dispatch = useDispatch();
 
   const getAllPosts = async () => {
-    const querySnapshot = await getDocs(collection(db, "posts"));
-    setPosts(querySnapshot.forEach((doc) => ({ ...doc, id: doc.id })));
+    try {
+      const querySnapshot = await getDocs(collection(db, "posts"));
+      await setPosts(
+        querySnapshot.docs.map((doc) => ({
+          ...doc.data(),
+          id: doc.id,
+        }))
+      );
+    } catch (error) {
+      console.log(error.message);
+    }
   };
 
   useEffect(() => {
