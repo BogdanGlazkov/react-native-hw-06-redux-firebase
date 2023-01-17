@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   View,
   Text,
@@ -21,6 +21,7 @@ const icons = {
 
 const PostsScreen = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
+  const { login, email } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
   const getAllPosts = async () => {
@@ -63,8 +64,8 @@ const PostsScreen = ({ navigation }) => {
         <View style={styles.user}>
           <Image style={styles.userImage} source={icons.user} />
           <View style={styles.userText}>
-            <Text style={styles.userTitle}>Natali Romanova</Text>
-            <Text style={styles.userEmail}>email@example.com</Text>
+            <Text style={styles.userTitle}>{login}</Text>
+            <Text style={styles.userEmail}>{email}</Text>
           </View>
         </View>
         <FlatList

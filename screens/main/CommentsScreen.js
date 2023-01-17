@@ -7,17 +7,15 @@ import {
   TextInput,
   TouchableOpacity,
   Image,
-  SafeAreaView,
   FlatList,
 } from "react-native";
-import { collection, addDoc, getDocs, onSnapshot } from "firebase/firestore";
+import { collection, addDoc, onSnapshot } from "firebase/firestore";
 import { db } from "../../firebase/config";
 
 let allComments = [];
 
 const CommentsScreen = ({ route }) => {
   const [comment, setComment] = useState("");
-  // const [allComments, setAllComments] = useState([]);
   const { login } = useSelector((state) => state.auth);
   const { postId, photoUrl } = route.params;
 
@@ -45,17 +43,15 @@ const CommentsScreen = ({ route }) => {
         const sortedComments = comments.sort((a, b) => a.date > b.date);
         allComments = sortedComments;
       });
-      await console.log("allComments========>", allComments);
-      // const querySnapshot = await getDocs(commentsColl);
-      // console.log(123, querySnapshot.docs);
-      // await setAllComments(
-      //   querySnapshot.docs.map((doc) => {
-      //     ({ ...doc.data(), id: doc.id });
-      //   })
-      // );
     } catch (error) {
       console.log(error.message);
     }
+  };
+
+  const getDate = (date) => {
+    const dateString = new Date(date).toString();
+    const newDate = dateString.slice(4, 21);
+    return newDate;
   };
 
   useEffect(() => {
@@ -69,7 +65,6 @@ const CommentsScreen = ({ route }) => {
           <Image style={styles.postImg} source={{ uri: photoUrl }} />
         </View>
 
-        {/* <SafeAreaView> */}
         <FlatList
           data={allComments}
           keyExtractor={(item, index) => index.toString()}
@@ -80,12 +75,11 @@ const CommentsScreen = ({ route }) => {
               </View>
               <View style={styles.commentBody}>
                 <Text style={styles.commentText}>{item.comment}</Text>
-                <Text style={styles.commentDate}>{item.date}</Text>
+                <Text style={styles.commentDate}>{getDate(item.date)}</Text>
               </View>
             </View>
           )}
         />
-        {/* </SafeAreaView> */}
       </View>
       <View style={styles.inputWrapper}>
         <TextInput
@@ -110,7 +104,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 16,
-    // justifyContent: "space-between",
+    paddingBottom: 350,
     backgroundColor: "#FFFFFF",
   },
   wrapper: {

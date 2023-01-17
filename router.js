@@ -35,6 +35,7 @@ const useRoute = (isAuth) => {
       initialRouteName="Home"
       screenOptions={{
         tabBarShowLabel: false,
+        tabBarHideOnKeyboard: true,
         tabBarStyle: [
           {
             display: "flex",
