@@ -108,7 +108,6 @@ const CreatePostsScreen = ({ navigation }) => {
         title,
         locationTitle,
         location,
-        comments: [],
         likes: 0,
         owner: userId,
       });

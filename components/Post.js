@@ -20,7 +20,12 @@ export default function Post({ item, navigation }) {
       <View style={styles.postFooter}>
         <TouchableOpacity
           style={styles.postStats}
-          onPress={() => navigation.navigate("Comments")}
+          onPress={() =>
+            navigation.navigate("Comments", {
+              postId: item.id,
+              photoUrl: item.photoUrl,
+            })
+          }
         >
           <Image style={styles.postFooterIcon} source={icons.comments} />
           <Text style={styles.postFooterText}>0</Text>
