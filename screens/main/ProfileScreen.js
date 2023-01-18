@@ -11,36 +11,19 @@ import {
   TouchableOpacity,
   Dimensions,
 } from "react-native";
-import { collection, getDocs, where, query } from "firebase/firestore";
 import Avatar from "../../components/Avatar";
 import Post from "../../components/Post";
 import { authExit } from "../../redux/auth/authOperations";
-import { db } from "../../firebase/config";
+import { getUsersPostsFromFirestore } from "../../redux/posts/postsOperations";
 
 const ProfileScreen = ({ navigation }) => {
   const [dimensions, setDimensions] = useState(Dimensions.get("window").width);
-  const [posts, setPosts] = useState([]);
   const { userId, login } = useSelector((state) => state.auth);
+  const { usersPosts } = useSelector((state) => state.posts);
   const dispatch = useDispatch();
 
-  const getUserPosts = async () => {
-    try {
-      const q = query(collection(db, "posts"), where("owner", "==", userId));
-
-      const querySnapshot = await getDocs(q);
-      await setPosts(
-        querySnapshot.docs.map((doc) => ({
-          ...doc.data(),
-          id: doc.id,
-        }))
-      );
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
-
   useEffect(() => {
-    getUserPosts();
+    dispatch(getUsersPostsFromFirestore(userId));
     const onChangeWidth = () => {
       const width = Dimensions.get("window").width;
       setDimensions(width);
@@ -74,7 +57,7 @@ const ProfileScreen = ({ navigation }) => {
             <Text style={styles.userName}>{login}</Text>
           </View>
           <FlatList
-            data={posts}
+            data={usersPosts}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({ item }) => (
               <Post item={item} navigation={navigation} />
