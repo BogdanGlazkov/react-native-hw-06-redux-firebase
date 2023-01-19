@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import {
   View,
   Text,
@@ -17,10 +17,6 @@ import * as ImagePicker from "expo-image-picker";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { collection, addDoc } from "firebase/firestore";
 import { storage, db } from "../../firebase/config";
-import {
-  uploadPhotoToDB,
-  uploadPostToFirestore,
-} from "../../redux/posts/postsOperations";
 
 const icons = {
   arrow: require("../../assets/images/arrow-left.png"),
@@ -39,10 +35,6 @@ const CreatePostsScreen = ({ navigation }) => {
   const [permission, requestPermission] = Camera.useCameraPermissions();
 
   const { userId, login, email } = useSelector((state) => state.auth);
-  const { uploadedPhoto, comments, allPosts } = useSelector(
-    (state) => state.posts
-  );
-  const dispatch = useDispatch();
 
   const keyboardHide = () => {
     Keyboard.dismiss();
@@ -75,7 +67,6 @@ const CreatePostsScreen = ({ navigation }) => {
   };
 
   const sendPhoto = () => {
-    if (!photo) return;
     uploadPost();
     navigation.navigate("Posts");
     setPhoto(null);
@@ -88,52 +79,41 @@ const CreatePostsScreen = ({ navigation }) => {
     setPhoto(null);
   };
 
-  // const uploadPhoto = async () => {
-  //   if (!photo) {
-  //     return;
-  //   }
-  //   try {
-  //     const response = await fetch(photo);
-  //     const file = await response.blob();
-  //     const postId = Date.now().toString();
-  //     const reference = ref(storage, `images/${postId}`);
+  const uploadPhoto = async () => {
+    if (!photo) {
+      return;
+    }
+    try {
+      const response = await fetch(photo);
+      const file = await response.blob();
+      const postId = Date.now().toString();
+      const reference = ref(storage, `images/${postId}`);
 
-  //     const result = await uploadBytesResumable(reference, file);
-  //     const processedPhoto = await getDownloadURL(result.ref);
-  //     return processedPhoto;
-  //   } catch (error) {
-  //     Alert.alert("Something went wrong. Try again, please");
-  //     console.log(error.message);
-  //   }
-  // };
+      const result = await uploadBytesResumable(reference, file);
+      const processedPhoto = await getDownloadURL(result.ref);
+      return processedPhoto;
+    } catch (error) {
+      Alert.alert("Something went wrong. Try again, please");
+      console.log(error.message);
+    }
+  };
 
   const uploadPost = async () => {
-    await dispatch(uploadPhotoToDB(photo));
-    await console.log("uploadedPhoto1===>>>", uploadedPhoto);
-    await console.log("state===>>>", uploadedPhoto, comments, allPosts);
-    await dispatch(
-      uploadPostToFirestore({
-        uploadedPhoto,
+    try {
+      const createdPhoto = await uploadPhoto();
+      console.log("user ===>", userId, login, email);
+
+      await addDoc(collection(db, "posts"), {
+        photoUrl: createdPhoto,
         title,
         locationTitle,
         location,
-        userId,
-      })
-    );
-    // try {
-    //   console.log("user ===>", userId, login, email);
-
-    //   await addDoc(collection(db, "posts"), {
-    //     photoUrl: createdPhoto,
-    //     title,
-    //     locationTitle,
-    //     location,
-    //     likes: 0,
-    //     owner: userId,
-    //   });
-    // } catch (error) {
-    //   console.log(error.message);
-    // }
+        likes: 0,
+        owner: userId,
+      });
+    } catch (error) {
+      console.log(error.message);
+    }
   };
 
   if (!permission?.granted) {
