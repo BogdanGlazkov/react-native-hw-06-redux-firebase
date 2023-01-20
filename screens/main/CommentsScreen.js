@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import {
   View,
   Text,
@@ -11,42 +11,17 @@ import {
 } from "react-native";
 import { collection, addDoc, onSnapshot } from "firebase/firestore";
 import { db } from "../../firebase/config";
-
-let allComments = [];
+import {
+  getCommentsFromFirestore,
+  uploadCommentToFirestore,
+} from "../../redux/posts/postsOperations";
 
 const CommentsScreen = ({ route }) => {
   const [comment, setComment] = useState("");
   const { login } = useSelector((state) => state.auth);
+  const { comments } = useSelector((state) => state.posts);
   const { postId, photoUrl } = route.params;
-
-  const createComment = async () => {
-    try {
-      if (!comment) return;
-      const commentsColl = await collection(db, "posts", postId, "comments");
-      await addDoc(commentsColl, { comment, login, date: Date.now() });
-      await setComment("");
-      await getAllComments();
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
-
-  const getAllComments = async () => {
-    try {
-      const comments = [];
-      const commentsColl = await collection(db, `posts/${postId}/comments`);
-      onSnapshot(commentsColl, (snapshot) => {
-        snapshot.forEach((doc) => {
-          const data = doc.data();
-          comments.push(data);
-        });
-        const sortedComments = comments.sort((a, b) => a.date > b.date);
-        allComments = sortedComments;
-      });
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
+  const dispatch = useDispatch();
 
   const getDate = (date) => {
     const dateString = new Date(date).toString();
@@ -54,9 +29,15 @@ const CommentsScreen = ({ route }) => {
     return newDate;
   };
 
+  const createComment = async () => {
+    dispatch(uploadCommentToFirestore({ postId, comment, login }));
+    dispatch(getCommentsFromFirestore(postId));
+    setComment("");
+  };
+
   useEffect(() => {
-    getAllComments();
-  }, [allComments]);
+    dispatch(getCommentsFromFirestore(postId));
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -66,7 +47,7 @@ const CommentsScreen = ({ route }) => {
         </View>
 
         <FlatList
-          data={allComments}
+          data={comments}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => (
             <View style={styles.comment}>

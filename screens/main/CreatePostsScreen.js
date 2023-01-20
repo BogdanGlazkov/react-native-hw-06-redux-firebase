@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import {
   View,
   Text,
@@ -17,6 +17,10 @@ import * as ImagePicker from "expo-image-picker";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { collection, addDoc } from "firebase/firestore";
 import { storage, db } from "../../firebase/config";
+import {
+  getAllPostsFromFirestore,
+  getUsersPostsFromFirestore,
+} from "../../redux/posts/postsOperations";
 
 const icons = {
   arrow: require("../../assets/images/arrow-left.png"),
@@ -33,6 +37,7 @@ const CreatePostsScreen = ({ navigation }) => {
   const [location, setLocation] = useState(null);
   const [locationTitle, setLocationTitle] = useState("");
   const [permission, requestPermission] = Camera.useCameraPermissions();
+  const dispatch = useDispatch();
 
   const { userId, login, email } = useSelector((state) => state.auth);
 
@@ -68,6 +73,8 @@ const CreatePostsScreen = ({ navigation }) => {
 
   const sendPhoto = () => {
     uploadPost();
+    dispatch(getAllPostsFromFirestore());
+    dispatch(getUsersPostsFromFirestore(userId));
     navigation.navigate("Posts");
     setPhoto(null);
     setTitle("");
@@ -94,14 +101,13 @@ const CreatePostsScreen = ({ navigation }) => {
       return processedPhoto;
     } catch (error) {
       Alert.alert("Something went wrong. Try again, please");
-      console.log(error.message);
+      console.log("error.message: ", error.message);
     }
   };
 
   const uploadPost = async () => {
     try {
       const createdPhoto = await uploadPhoto();
-      console.log("user ===>", userId, login, email);
 
       await addDoc(collection(db, "posts"), {
         photoUrl: createdPhoto,
@@ -112,7 +118,8 @@ const CreatePostsScreen = ({ navigation }) => {
         owner: userId,
       });
     } catch (error) {
-      console.log(error.message);
+      Alert.alert("Something went wrong. Try again, please");
+      console.log("error.message: ", error.message);
     }
   };
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   View,
@@ -9,10 +9,9 @@ import {
   FlatList,
   SafeAreaView,
 } from "react-native";
-import { collection, getDocs } from "firebase/firestore";
 import Post from "../../components/Post";
 import { authExit } from "../../redux/auth/authOperations";
-import { db } from "../../firebase/config";
+import { getAllPostsFromFirestore } from "../../redux/posts/postsOperations";
 
 const icons = {
   logOut: require("../../assets/images/log-out.png"),
@@ -20,26 +19,12 @@ const icons = {
 };
 
 const PostsScreen = ({ navigation }) => {
-  const [posts, setPosts] = useState([]);
   const { login, email } = useSelector((state) => state.auth);
+  const { allPosts } = useSelector((state) => state.posts);
   const dispatch = useDispatch();
 
-  const getAllPosts = async () => {
-    try {
-      const querySnapshot = await getDocs(collection(db, "posts"));
-      await setPosts(
-        querySnapshot.docs.map((doc) => ({
-          ...doc.data(),
-          id: doc.id,
-        }))
-      );
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
-
   useEffect(() => {
-    getAllPosts();
+    dispatch(getAllPostsFromFirestore());
   }, []);
 
   const onLogOut = () => {
@@ -69,7 +54,7 @@ const PostsScreen = ({ navigation }) => {
           </View>
         </View>
         <FlatList
-          data={posts}
+          data={allPosts}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => (
             <Post item={item} navigation={navigation} />
