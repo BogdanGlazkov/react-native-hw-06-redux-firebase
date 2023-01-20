@@ -21,6 +21,7 @@ import {
   getAllPostsFromFirestore,
   getUsersPostsFromFirestore,
 } from "../../redux/posts/postsOperations";
+import Loader from "../../components/Loader";
 
 const icons = {
   arrow: require("../../assets/images/arrow-left.png"),
@@ -36,6 +37,7 @@ const CreatePostsScreen = ({ navigation }) => {
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState(null);
   const [locationTitle, setLocationTitle] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [permission, requestPermission] = Camera.useCameraPermissions();
   const dispatch = useDispatch();
 
@@ -71,15 +73,17 @@ const CreatePostsScreen = ({ navigation }) => {
     }
   };
 
-  const sendPhoto = () => {
-    uploadPost();
-    dispatch(getAllPostsFromFirestore());
-    dispatch(getUsersPostsFromFirestore(userId));
-    navigation.navigate("Posts");
-    setPhoto(null);
-    setTitle("");
-    setLocation(null);
-    setLocationTitle("");
+  const sendPhoto = async () => {
+    setIsLoading(true);
+    await uploadPost();
+    await dispatch(getAllPostsFromFirestore());
+    await dispatch(getUsersPostsFromFirestore(userId));
+    await setPhoto(null);
+    await setTitle("");
+    await setLocation(null);
+    await setLocationTitle("");
+    await navigation.navigate("Posts");
+    await setIsLoading(false);
   };
 
   const editPhoto = () => {
@@ -143,6 +147,10 @@ const CreatePostsScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
     );
+  }
+
+  if (isLoading) {
+    return <Loader />;
   }
 
   return (

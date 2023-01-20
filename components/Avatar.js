@@ -1,15 +1,23 @@
 import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { View, Image, TouchableOpacity, StyleSheet } from "react-native";
 import * as ImagePicker from "expo-image-picker";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import { updateProfile, getAuth } from "firebase/auth";
+import { storage, appFirebase } from "../firebase/config";
+import { authRefresh } from "../redux/auth/authOperations";
+
+const auth = getAuth(appFirebase);
 
 const images = {
-  avatar: require("../assets/images/user-photo-m.png"),
   addIcon: require("../assets/images/add.png"),
   deleteIcon: require("../assets/images/delete.png"),
 };
 
 export default function Avatar() {
   const [image, setImage] = useState(null);
+  const { photoURL } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
 
   const pickAvatar = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -19,28 +27,55 @@ export default function Avatar() {
       quality: 1,
     });
     if (!result.canceled) {
-      setImage(result.assets[0].uri);
+      await setImage(result.assets[0].uri);
     }
   };
 
-  const deleteAvatar = () => {
-    setImage(null);
+  const deleteAvatar = async () => {
+    try {
+      setImage(null);
+      await updateProfile(auth.currentUser, {
+        photoURL: "",
+      });
+      await dispatch(authRefresh());
+    } catch (error) {
+      console.log("error.message: ", error.message);
+    }
+  };
+
+  const uploadAvatar = async () => {
+    try {
+      await pickAvatar();
+      await console.log("image===>>>", image);
+      const response = await fetch(image);
+      const file = await response.blob();
+      const postId = Date.now().toString();
+      const reference = ref(storage, `images/${postId}`);
+
+      const result = await uploadBytesResumable(reference, file);
+      const processedPhoto = await getDownloadURL(result.ref);
+
+      await setImage(processedPhoto);
+      await updateProfile(auth.currentUser, {
+        photoURL: processedPhoto,
+      });
+      await dispatch(authRefresh());
+    } catch (error) {
+      console.log("error.message: ", error.message);
+    }
   };
 
   return (
     <View style={styles.avatar}>
-      <Image
-        style={styles.avatarImg}
-        source={image ? { uri: image } : images.avatar}
-      />
+      <Image style={styles.avatarImg} source={{ uri: photoURL }} />
       <TouchableOpacity
         style={styles.avatarBtn}
         activeOpacity={0.8}
-        onPress={image ? deleteAvatar : pickAvatar}
+        onPress={photoURL ? deleteAvatar : uploadAvatar}
       >
         <Image
           style={styles.avatarIcon}
-          source={image ? images.deleteIcon : images.addIcon}
+          source={photoURL ? images.deleteIcon : images.addIcon}
         />
       </TouchableOpacity>
     </View>

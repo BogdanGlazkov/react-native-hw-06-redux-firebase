@@ -1,8 +1,16 @@
 import { Alert } from "react-native";
-import { collection, addDoc, getDocs, where, query } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  addDoc,
+  getDocs,
+  setDoc,
+  where,
+  query,
+} from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { db, storage } from "../../firebase/config";
-import { postsSlice } from "./postReducer";
+import { postsSlice } from "./postsReducer";
 
 const { getAllPosts, getUsersPosts, getComments, getPhoto } =
   postsSlice.actions;

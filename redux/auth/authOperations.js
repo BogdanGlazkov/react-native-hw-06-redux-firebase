@@ -9,7 +9,7 @@ import {
 } from "firebase/auth";
 import { appFirebase } from "../../firebase/config";
 import { authSlice } from "./authReducer";
-import { postsSlice } from "../posts/postReducer";
+import { postsSlice } from "../posts/postsReducer";
 
 const auth = getAuth(appFirebase);
 const { updateUserProfile, updateAvatar, authStateChange, authLogOut } =
@@ -17,20 +17,21 @@ const { updateUserProfile, updateAvatar, authStateChange, authLogOut } =
 const { postsLogOut } = postsSlice.actions;
 
 export const authSignUp =
-  ({ login, email, password, avatarUrl }) =>
+  ({ login, email, password, image }) =>
   async (dispatch) => {
     try {
+      console.log(image);
       await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(auth.currentUser, {
         displayName: login,
-        avatarUrl,
+        photoURL: image,
       });
       const user = await auth.currentUser;
       const userProfile = {
         userId: user.uid,
         login: user.displayName,
         email: user.email,
-        avatarUrl: user.avatarUrl,
+        photoURL: user.photoURL,
       };
       dispatch(updateUserProfile(userProfile));
     } catch (error) {
@@ -50,19 +51,19 @@ export const authLogIn =
       );
       const user = userCredential.user;
     } catch (error) {
-      Alert.alert("Something went wrong. Try again, please");
+      Alert.alert("Wrong email or password");
       console.log("error.message: ", error.message);
     }
   };
 
 export const authSetAvatar =
-  ({ avatarUrl }) =>
+  ({ processedPhoto }) =>
   async (dispatch) => {
     try {
       await updateProfile(auth.currentUser, {
-        avatarUrl,
+        photoURL: processedPhoto,
       });
-      dispatch(updateAvatar(avatarUrl));
+      dispatch(updateAvatar(processedPhoto));
     } catch (error) {
       Alert.alert("Something went wrong. Try again, please");
       console.log("error.message: ", error.message);
@@ -77,8 +78,9 @@ export const authRefresh = () => async (dispatch) => {
           userId: user.uid,
           login: user.displayName,
           email: user.email,
-          avatarUrl: user.avatarUrl,
+          photoURL: user.photoURL,
         };
+        console.log("user====>>>>", user);
         dispatch(updateUserProfile(userProfile));
         dispatch(authStateChange({ stateChange: true }));
       }

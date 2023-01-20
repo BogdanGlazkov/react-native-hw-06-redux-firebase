@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   StyleSheet,
   Text,
@@ -12,7 +13,6 @@ import {
   TouchableWithoutFeedback,
   Dimensions,
 } from "react-native";
-import { useDispatch } from "react-redux";
 import Avatar from "../../components/Avatar";
 import { authSignUp } from "../../redux/auth/authOperations";
 
@@ -20,6 +20,7 @@ const initialState = {
   login: "",
   email: "",
   password: "",
+  image: "",
 };
 
 export default function RegistrationScreen({ navigation }) {
@@ -30,6 +31,7 @@ export default function RegistrationScreen({ navigation }) {
   const [isLoginActive, setIsLoginActive] = useState(false);
   const [isEmailActive, setIsEmailActive] = useState(false);
   const [isPasswordActive, setIsPasswordActive] = useState(false);
+  const { photoURL } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -50,6 +52,7 @@ export default function RegistrationScreen({ navigation }) {
 
   const onSubmit = () => {
     keyboardHide();
+    setState((prevState) => ({ ...prevState, image: photoURL }));
     dispatch(authSignUp(state));
     setState(initialState);
   };

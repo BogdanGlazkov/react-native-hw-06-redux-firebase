@@ -15,11 +15,10 @@ import { getAllPostsFromFirestore } from "../../redux/posts/postsOperations";
 
 const icons = {
   logOut: require("../../assets/images/log-out.png"),
-  user: require("../../assets/images/user-photo.png"),
 };
 
 const PostsScreen = ({ navigation }) => {
-  const { login, email } = useSelector((state) => state.auth);
+  const { login, email, photoURL } = useSelector((state) => state.auth);
   const { allPosts } = useSelector((state) => state.posts);
   const dispatch = useDispatch();
 
@@ -47,7 +46,7 @@ const PostsScreen = ({ navigation }) => {
 
       <SafeAreaView style={styles.postsContainer}>
         <View style={styles.user}>
-          <Image style={styles.userImage} source={icons.user} />
+          <Image style={styles.userImage} source={{ uri: photoURL }} />
           <View style={styles.userText}>
             <Text style={styles.userTitle}>{login}</Text>
             <Text style={styles.userEmail}>{email}</Text>
