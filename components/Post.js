@@ -1,28 +1,9 @@
 import React, { useState } from "react";
 import { View, Image, Text, TouchableOpacity, StyleSheet } from "react-native";
-
-const icons = {
-  comments: require("../assets/images/comment-empty.png"),
-  likes: require("../assets/images/like.png"),
-  likesFull: require("../assets/images/like-full.png"),
-  map: require("../assets/images/map.png"),
-};
-
-const favorites = [];
+import { Feather, FontAwesome } from "@expo/vector-icons";
 
 export default function Post({ item, navigation }) {
   const [isFavorite, setIsFavorite] = useState(false);
-
-  const setFavorite = (id) => {
-    favorites.push(id);
-    setIsFavorite(true);
-  };
-
-  const unsetFavorite = (id) => {
-    const index = favorites.indexOf(id);
-    favorites.splice(index, 1);
-    setIsFavorite(false);
-  };
 
   return (
     <View style={styles.post}>
@@ -43,17 +24,18 @@ export default function Post({ item, navigation }) {
             })
           }
         >
-          <Image style={styles.postFooterIcon} source={icons.comments} />
+          <Feather name="message-circle" size={24} color="#BDBDBD" />
           <Text style={styles.postFooterText}>0</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.postStats}
-          onPress={isFavorite ? unsetFavorite : setFavorite}
+          onPress={() => setIsFavorite(!isFavorite)}
         >
-          <Image
-            style={styles.postFooterIcon}
-            source={isFavorite ? icons.likesFull : icons.likes}
-          />
+          {isFavorite ? (
+            <FontAwesome name={"thumbs-up"} size={24} color="#FF6C00" />
+          ) : (
+            <Feather name={"thumbs-up"} size={24} color="#BDBDBD" />
+          )}
           <Text style={styles.postFooterText}>{isFavorite ? 1 : 0}</Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -66,7 +48,7 @@ export default function Post({ item, navigation }) {
             })
           }
         >
-          <Image style={styles.postFooterIcon} source={icons.map} />
+          <Feather name={"map-pin"} size={24} color="#BDBDBD" />
           <Text style={styles.postLocationText}>{item.locationTitle}</Text>
         </TouchableOpacity>
       </View>
@@ -103,10 +85,6 @@ const styles = StyleSheet.create({
   postStats: {
     flexDirection: "row",
     marginRight: 24,
-  },
-  postFooterIcon: {
-    width: 24,
-    height: 24,
   },
   postFooterText: {
     marginLeft: 6,

@@ -2,6 +2,7 @@ import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Image } from "react-native";
+import { Feather } from "@expo/vector-icons";
 
 import LoginScreen from "./screens/auth/LoginScreen";
 import RegistrationScreen from "./screens/auth/RegistrationScreen";
@@ -50,9 +51,7 @@ const useRoute = (isAuth) => {
       <MainStack.Screen
         options={{
           headerShown: false,
-          tabBarIcon: () => (
-            <Image source={require("./assets/images/grid.png")} />
-          ),
+          tabBarIcon: () => <Feather name="grid" size={24} color="#212121" />,
         }}
         name="Home"
         component={Home}
@@ -73,9 +72,7 @@ const useRoute = (isAuth) => {
       <MainStack.Screen
         options={{
           headerShown: false,
-          tabBarIcon: () => (
-            <Image source={require("./assets/images/user.png")} />
-          ),
+          tabBarIcon: () => <Feather name="user" size={24} color="#212121" />,
         }}
         name="Profile"
         component={ProfileScreen}

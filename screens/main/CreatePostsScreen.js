@@ -14,6 +14,7 @@ import {
 import { Camera } from "expo-camera";
 import * as Location from "expo-location";
 import * as ImagePicker from "expo-image-picker";
+import { Feather } from "@expo/vector-icons";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { collection, addDoc } from "firebase/firestore";
 import { storage, db } from "../../firebase/config";
@@ -24,11 +25,8 @@ import {
 import Loader from "../../components/Loader";
 
 const icons = {
-  arrow: require("../../assets/images/arrow-left.png"),
   camera: require("../../assets/images/camera.png"),
   cameraEdit: require("../../assets/images/camera-edit.png"),
-  map: require("../../assets/images/map.png"),
-  trash: require("../../assets/images/trash.png"),
 };
 
 const CreatePostsScreen = ({ navigation }) => {
@@ -162,7 +160,7 @@ const CreatePostsScreen = ({ navigation }) => {
               style={styles.exit}
               onPress={() => navigation.navigate("Posts")}
             >
-              <Image source={icons.arrow} />
+              <Feather name="arrow-left" size={24} color="#212121" />
             </TouchableOpacity>
             <View>
               <Text style={styles.headerTitle}>Create post</Text>
@@ -225,9 +223,9 @@ const CreatePostsScreen = ({ navigation }) => {
               />
             </View>
             <View style={styles.inputWrapper}>
-              <Image source={icons.map} style={styles.inputIcon} />
+              <Feather name={"map-pin"} size={18} color="#BDBDBD" />
               <TextInput
-                style={styles.input}
+                style={{ ...styles.input, marginLeft: 8 }}
                 placeholder="Location..."
                 placeholderTextColor="#BDBDBD"
                 value={locationTitle}
@@ -255,7 +253,7 @@ const CreatePostsScreen = ({ navigation }) => {
             </TouchableOpacity>
           </View>
           <TouchableOpacity style={styles.delete} disabled={!photo}>
-            <Image source={icons.trash} />
+            <Feather name={"trash-2"} size={24} color="#BDBDBD" />
           </TouchableOpacity>
         </View>
       </View>
@@ -366,7 +364,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     height: 50,
-    paddingVertical: 16,
+    paddingVertical: 15,
     borderBottomWidth: 1,
     borderBottomColor: "#E8E8E8",
     marginBottom: 16,
@@ -375,11 +373,6 @@ const styles = StyleSheet.create({
     width: "100%",
     fontSize: 16,
     color: "#212121",
-  },
-  inputIcon: {
-    marginRight: 4,
-    height: 24,
-    width: 24,
   },
   btn: {
     height: 51,

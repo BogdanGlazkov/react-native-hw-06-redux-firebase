@@ -2,17 +2,13 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { View, Image, TouchableOpacity, StyleSheet } from "react-native";
 import * as ImagePicker from "expo-image-picker";
+import { Feather } from "@expo/vector-icons";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { updateProfile, getAuth } from "firebase/auth";
 import { storage, appFirebase } from "../firebase/config";
 import { authRefresh } from "../redux/auth/authOperations";
 
 const auth = getAuth(appFirebase);
-
-const images = {
-  addIcon: require("../assets/images/add.png"),
-  deleteIcon: require("../assets/images/delete.png"),
-};
 
 export default function Avatar() {
   const [image, setImage] = useState(null);
@@ -75,10 +71,11 @@ export default function Avatar() {
         activeOpacity={0.8}
         onPress={photoURL ? deleteAvatar : uploadAvatar}
       >
-        <Image
-          style={styles.avatarIcon}
-          source={photoURL ? images.deleteIcon : images.addIcon}
-        />
+        {photoURL ? (
+          <Feather name="x-circle" size={25} color="#BDBDBD" />
+        ) : (
+          <Feather name="plus-circle" size={25} color="#FF6C00" />
+        )}
       </TouchableOpacity>
     </View>
   );
@@ -101,13 +98,9 @@ const styles = StyleSheet.create({
   },
   avatarBtn: {
     position: "absolute",
-    bottom: 21,
-    right: -5,
+    bottom: 14,
+    right: -12,
     width: 25,
     height: 25,
-  },
-  avatarIcon: {
-    width: 40,
-    height: 40,
   },
 });

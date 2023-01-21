@@ -9,13 +9,10 @@ import {
   FlatList,
   SafeAreaView,
 } from "react-native";
+import { Feather } from "@expo/vector-icons";
 import Post from "../../components/Post";
 import { authExit } from "../../redux/auth/authOperations";
 import { getAllPostsFromFirestore } from "../../redux/posts/postsOperations";
-
-const icons = {
-  logOut: require("../../assets/images/log-out.png"),
-};
 
 const PostsScreen = ({ navigation }) => {
   const { login, email, photoURL } = useSelector((state) => state.auth);
@@ -39,7 +36,7 @@ const PostsScreen = ({ navigation }) => {
             <Text style={styles.headerTitle}>Posts</Text>
           </View>
           <TouchableOpacity style={styles.exit} onPress={onLogOut}>
-            <Image source={icons.logOut} />
+            <Feather name="log-out" size={25} color="#BDBDBD" />
           </TouchableOpacity>
         </View>
       </View>

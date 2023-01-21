@@ -8,9 +8,12 @@ import {
   TouchableOpacity,
   Image,
   FlatList,
+  TouchableWithoutFeedback,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
-import { collection, addDoc, onSnapshot } from "firebase/firestore";
-import { db } from "../../firebase/config";
+import { Ionicons } from "@expo/vector-icons";
 import {
   getCommentsFromFirestore,
   uploadCommentToFirestore,
@@ -18,6 +21,7 @@ import {
 
 const CommentsScreen = ({ route }) => {
   const [comment, setComment] = useState("");
+  const [isKeyboardShown, setIsKeyboardShown] = useState(false);
   const { login } = useSelector((state) => state.auth);
   const { comments } = useSelector((state) => state.posts);
   const { postId, photoUrl } = route.params;
@@ -30,9 +34,15 @@ const CommentsScreen = ({ route }) => {
   };
 
   const createComment = async () => {
+    if (!comment) return;
     dispatch(uploadCommentToFirestore({ postId, comment, login }));
     dispatch(getCommentsFromFirestore(postId));
     setComment("");
+  };
+
+  const keyboardHide = () => {
+    setIsKeyboardShown(false);
+    Keyboard.dismiss();
   };
 
   useEffect(() => {
@@ -40,44 +50,46 @@ const CommentsScreen = ({ route }) => {
   }, []);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.wrapper}>
-        <View style={styles.postImgWrapper}>
-          <Image style={styles.postImg} source={{ uri: photoUrl }} />
-        </View>
-
-        <FlatList
-          data={comments}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item }) => (
-            <View style={styles.comment}>
-              <View style={styles.commentAvatar}>
-                <Text style={styles.commentOwner}>{item.login[0]}</Text>
-              </View>
-              <View style={styles.commentBody}>
-                <Text style={styles.commentText}>{item.comment}</Text>
-                <Text style={styles.commentDate}>{getDate(item.date)}</Text>
-              </View>
+    <TouchableWithoutFeedback onPress={keyboardHide}>
+      <View style={styles.container}>
+        <KeyboardAvoidingView behavior={Platform.OS == "ios" ? "padding" : ""}>
+          <View style={styles.wrapper}>
+            <View style={styles.postImgWrapper}>
+              <Image style={styles.postImg} source={{ uri: photoUrl }} />
             </View>
-          )}
-        />
+
+            <FlatList
+              data={comments}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({ item }) => (
+                <View style={styles.comment}>
+                  <View style={styles.commentAvatar}>
+                    <Text style={styles.commentOwner}>{item.login[0]}</Text>
+                  </View>
+                  <View style={styles.commentBody}>
+                    <Text style={styles.commentText}>{item.comment}</Text>
+                    <Text style={styles.commentDate}>{getDate(item.date)}</Text>
+                  </View>
+                </View>
+              )}
+            />
+          </View>
+          <View style={styles.inputWrapper}>
+            <TextInput
+              style={styles.input}
+              placeholder="Comment..."
+              placeholderTextColor="#BDBDBD"
+              value={comment}
+              onChangeText={(value) => setComment(value)}
+              onFocus={() => setIsKeyboardShown(true)}
+            />
+            <TouchableOpacity style={styles.postBtn} onPress={createComment}>
+              <Ionicons name="arrow-up-circle" size={34} color="#FF6C00" />
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
       </View>
-      <View style={styles.inputWrapper}>
-        <TextInput
-          style={styles.input}
-          placeholder="Comment..."
-          placeholderTextColor="#BDBDBD"
-          value={comment}
-          onChangeText={(value) => setComment(value)}
-        />
-        <TouchableOpacity style={styles.postBtn} onPress={createComment}>
-          <Image
-            style={styles.postBtnImg}
-            source={require("../../assets/images/send.png")}
-          />
-        </TouchableOpacity>
-      </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 };
 
@@ -85,7 +97,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 16,
-    paddingBottom: 350,
+    paddingBottom: 310,
     backgroundColor: "#FFFFFF",
   },
   wrapper: {
@@ -138,7 +150,6 @@ const styles = StyleSheet.create({
   inputWrapper: {
     position: "relative",
     flexDirection: "row",
-    // alignItems: "center",
     height: 50,
     marginTop: 7,
     borderWidth: 1,
@@ -160,10 +171,6 @@ const styles = StyleSheet.create({
     height: 34,
     alignSelf: "center",
     borderRadius: 50,
-  },
-  postBtnImg: {
-    width: "100%",
-    height: "100%",
   },
 });
 

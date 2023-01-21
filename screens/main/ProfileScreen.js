@@ -6,11 +6,11 @@ import {
   View,
   FlatList,
   SafeAreaView,
-  Image,
   ImageBackground,
   TouchableOpacity,
   Dimensions,
 } from "react-native";
+import { Feather } from "@expo/vector-icons";
 import Avatar from "../../components/Avatar";
 import Post from "../../components/Post";
 import { authExit } from "../../redux/auth/authOperations";
@@ -47,11 +47,7 @@ const ProfileScreen = ({ navigation }) => {
         <SafeAreaView style={{ ...styles.wrapper, width: dimensions }}>
           <Avatar />
           <TouchableOpacity style={styles.photoExit} onPress={onLogOut}>
-            <Image
-              style={styles.photoIconExit}
-              source={require("../../assets/images/log-out.png")}
-              activeOpacity={0.8}
-            />
+            <Feather name="log-out" size={24} color="#BDBDBD" />
           </TouchableOpacity>
           <View style={styles.user}>
             <Text style={styles.userName}>{login}</Text>
@@ -94,10 +90,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 18,
     right: 18,
-    width: 25,
-    height: 25,
-  },
-  photoIconExit: {
     width: 25,
     height: 25,
   },
