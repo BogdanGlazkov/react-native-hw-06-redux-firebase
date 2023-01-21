@@ -80,7 +80,6 @@ export const authRefresh = () => async (dispatch) => {
           email: user.email,
           photoURL: user.photoURL,
         };
-        console.log("user====>>>>", user);
         dispatch(updateUserProfile(userProfile));
         dispatch(authStateChange({ stateChange: true }));
       }

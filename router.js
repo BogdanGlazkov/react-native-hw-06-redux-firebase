@@ -37,15 +37,7 @@ const useRoute = (isAuth) => {
       screenOptions={{
         tabBarShowLabel: false,
         tabBarHideOnKeyboard: true,
-        tabBarStyle: [
-          {
-            display: "flex",
-            height: 83,
-            paddingTop: 9,
-            paddingHorizontal: 40,
-          },
-          null,
-        ],
+        tabBarStyle: [{ paddingHorizontal: 40 }, null],
       }}
     >
       <MainStack.Screen

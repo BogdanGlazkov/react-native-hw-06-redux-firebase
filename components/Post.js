@@ -4,6 +4,7 @@ import { Feather, FontAwesome } from "@expo/vector-icons";
 
 export default function Post({ item, navigation }) {
   const [isFavorite, setIsFavorite] = useState(false);
+  const isComment = item.comments;
 
   return (
     <View style={styles.post}>
@@ -24,8 +25,12 @@ export default function Post({ item, navigation }) {
             })
           }
         >
-          <Feather name="message-circle" size={24} color="#BDBDBD" />
-          <Text style={styles.postFooterText}>0</Text>
+          <Feather
+            name="message-circle"
+            size={24}
+            color={isComment ? "#FF6C00" : "#BDBDBD"}
+          />
+          <Text style={styles.postFooterText}>{item.comments}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.postStats}

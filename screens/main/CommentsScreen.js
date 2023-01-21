@@ -8,8 +8,6 @@ import {
   TouchableOpacity,
   Image,
   FlatList,
-  TouchableWithoutFeedback,
-  Keyboard,
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
@@ -21,7 +19,6 @@ import {
 
 const CommentsScreen = ({ route }) => {
   const [comment, setComment] = useState("");
-  const [isKeyboardShown, setIsKeyboardShown] = useState(false);
   const { login } = useSelector((state) => state.auth);
   const { comments } = useSelector((state) => state.posts);
   const { postId, photoUrl } = route.params;
@@ -40,69 +37,54 @@ const CommentsScreen = ({ route }) => {
     setComment("");
   };
 
-  const keyboardHide = () => {
-    setIsKeyboardShown(false);
-    Keyboard.dismiss();
-  };
-
   useEffect(() => {
     dispatch(getCommentsFromFirestore(postId));
   }, []);
 
   return (
-    <TouchableWithoutFeedback onPress={keyboardHide}>
-      <View style={styles.container}>
-        <KeyboardAvoidingView behavior={Platform.OS == "ios" ? "padding" : ""}>
-          <View style={styles.wrapper}>
-            <View style={styles.postImgWrapper}>
-              <Image style={styles.postImg} source={{ uri: photoUrl }} />
-            </View>
+    <View style={styles.container}>
+      <KeyboardAvoidingView behavior={Platform.OS == "ios" ? "padding" : ""}>
+        <View style={styles.postImgWrapper}>
+          <Image style={styles.postImg} source={{ uri: photoUrl }} />
+        </View>
 
-            <FlatList
-              data={comments}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={({ item }) => (
-                <View style={styles.comment}>
-                  <View style={styles.commentAvatar}>
-                    <Text style={styles.commentOwner}>{item.login[0]}</Text>
-                  </View>
-                  <View style={styles.commentBody}>
-                    <Text style={styles.commentText}>{item.comment}</Text>
-                    <Text style={styles.commentDate}>{getDate(item.date)}</Text>
-                  </View>
-                </View>
-              )}
-            />
-          </View>
-          <View style={styles.inputWrapper}>
-            <TextInput
-              style={styles.input}
-              placeholder="Comment..."
-              placeholderTextColor="#BDBDBD"
-              value={comment}
-              onChangeText={(value) => setComment(value)}
-              onFocus={() => setIsKeyboardShown(true)}
-            />
-            <TouchableOpacity style={styles.postBtn} onPress={createComment}>
-              <Ionicons name="arrow-up-circle" size={34} color="#FF6C00" />
-            </TouchableOpacity>
-          </View>
-        </KeyboardAvoidingView>
-      </View>
-    </TouchableWithoutFeedback>
+        <FlatList
+          style={{ height: 200 }}
+          data={comments}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item }) => (
+            <View style={styles.comment}>
+              <View style={styles.commentAvatar}>
+                <Text style={styles.commentOwner}>{item.login[0]}</Text>
+              </View>
+              <View style={styles.commentBody}>
+                <Text style={styles.commentText}>{item.comment}</Text>
+                <Text style={styles.commentDate}>{getDate(item.date)}</Text>
+              </View>
+            </View>
+          )}
+        />
+        <View style={styles.inputWrapper}>
+          <TextInput
+            style={styles.input}
+            placeholder="Comment..."
+            placeholderTextColor="#BDBDBD"
+            value={comment}
+            multiline={true}
+            onChangeText={(value) => setComment(value)}
+          />
+          <TouchableOpacity style={styles.postBtn} onPress={createComment}>
+            <Ionicons name="arrow-up-circle" size={34} color="#FF6C00" />
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     paddingHorizontal: 16,
-    paddingBottom: 310,
-    backgroundColor: "#FFFFFF",
-  },
-  wrapper: {
-    borderTopLeftRadius: 25,
-    borderTopRightRadius: 25,
     backgroundColor: "#FFFFFF",
   },
   postImgWrapper: {
@@ -148,25 +130,23 @@ const styles = StyleSheet.create({
     color: "#BDBDBD",
   },
   inputWrapper: {
-    position: "relative",
     flexDirection: "row",
+    justifyContent: "space-between",
     height: 50,
-    marginTop: 7,
+    marginVertical: 7,
     borderWidth: 1,
     borderRadius: 100,
     padding: 16,
+    paddingRight: 8,
     borderColor: "#E8E8E8",
     backgroundColor: "#F6F6F6",
   },
   input: {
+    width: "90%",
     fontSize: 16,
     color: "#212121",
   },
   postBtn: {
-    position: "absolute",
-    right: 8,
-    alignItems: "center",
-    justifyContent: "center",
     width: 34,
     height: 34,
     alignSelf: "center",

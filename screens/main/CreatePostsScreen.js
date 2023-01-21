@@ -29,11 +29,25 @@ const icons = {
   cameraEdit: require("../../assets/images/camera-edit.png"),
 };
 
+const defaultLocation = {
+  coords: {
+    accuracy: 600,
+    altitude: 0,
+    altitudeAccuracy: 0,
+    heading: 0,
+    latitude: 37.4220936,
+    longitude: -122.083922,
+    speed: 0,
+  },
+  mocked: false,
+  timestamp: 1673563251459,
+};
+
 const CreatePostsScreen = ({ navigation }) => {
   const [camera, setCamera] = useState(null);
   const [photo, setPhoto] = useState(null);
   const [title, setTitle] = useState("");
-  const [location, setLocation] = useState(null);
+  const [location, setLocation] = useState(defaultLocation);
   const [locationTitle, setLocationTitle] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [permission, requestPermission] = Camera.useCameraPermissions();
@@ -78,7 +92,7 @@ const CreatePostsScreen = ({ navigation }) => {
     await dispatch(getUsersPostsFromFirestore(userId));
     await setPhoto(null);
     await setTitle("");
-    await setLocation(null);
+    await setLocation(defaultLocation);
     await setLocationTitle("");
     await navigation.navigate("Posts");
     await setIsLoading(false);
@@ -117,6 +131,7 @@ const CreatePostsScreen = ({ navigation }) => {
         locationTitle,
         location,
         likes: 0,
+        comments: 0,
         owner: userId,
       });
     } catch (error) {
