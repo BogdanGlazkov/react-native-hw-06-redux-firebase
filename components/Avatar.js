@@ -46,7 +46,9 @@ export default function Avatar() {
   const uploadAvatar = async () => {
     try {
       await pickAvatar();
-      await console.log("image===>>>", image);
+      if (!image) {
+        return;
+      }
       const response = await fetch(image);
       const file = await response.blob();
       const postId = Date.now().toString();

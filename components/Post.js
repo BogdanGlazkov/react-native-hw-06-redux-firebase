@@ -1,13 +1,29 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Image, Text, TouchableOpacity, StyleSheet } from "react-native";
 
 const icons = {
   comments: require("../assets/images/comment-empty.png"),
   likes: require("../assets/images/like.png"),
+  likesFull: require("../assets/images/like-full.png"),
   map: require("../assets/images/map.png"),
 };
 
+const favorites = [];
+
 export default function Post({ item, navigation }) {
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  const setFavorite = (id) => {
+    favorites.push(id);
+    setIsFavorite(true);
+  };
+
+  const unsetFavorite = (id) => {
+    const index = favorites.indexOf(id);
+    favorites.splice(index, 1);
+    setIsFavorite(false);
+  };
+
   return (
     <View style={styles.post}>
       <View style={styles.postImgWrapper}>
@@ -30,9 +46,15 @@ export default function Post({ item, navigation }) {
           <Image style={styles.postFooterIcon} source={icons.comments} />
           <Text style={styles.postFooterText}>0</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.postStats}>
-          <Image style={styles.postFooterIcon} source={icons.likes} />
-          <Text style={styles.postFooterText}>0</Text>
+        <TouchableOpacity
+          style={styles.postStats}
+          onPress={isFavorite ? unsetFavorite : setFavorite}
+        >
+          <Image
+            style={styles.postFooterIcon}
+            source={isFavorite ? icons.likesFull : icons.likes}
+          />
+          <Text style={styles.postFooterText}>{isFavorite ? 1 : 0}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.postLocation}
