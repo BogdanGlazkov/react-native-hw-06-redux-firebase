@@ -27,6 +27,10 @@ export const postsSlice = createSlice({
       ...state,
       ...payload,
     }),
+    clearPhoto: (state) => ({
+      ...state,
+      uploadedPhoto: "",
+    }),
     postsLogOut: () => initialState,
   },
 });

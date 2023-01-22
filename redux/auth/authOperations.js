@@ -7,20 +7,25 @@ import {
   updateProfile,
   signOut,
 } from "firebase/auth";
-import { appFirebase } from "../../firebase/config";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import { appFirebase, storage } from "../../firebase/config";
 import { authSlice } from "./authReducer";
 import { postsSlice } from "../posts/postsReducer";
 
 const auth = getAuth(appFirebase);
-const { updateUserProfile, updateAvatar, authStateChange, authLogOut } =
-  authSlice.actions;
+const {
+  updateUserProfile,
+  updateAvatar,
+  deleteAvatar,
+  authStateChange,
+  authLogOut,
+} = authSlice.actions;
 const { postsLogOut } = postsSlice.actions;
 
 export const authSignUp =
   ({ login, email, password, image }) =>
   async (dispatch) => {
     try {
-      console.log(image);
       await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(auth.currentUser, {
         displayName: login,
@@ -57,18 +62,37 @@ export const authLogIn =
   };
 
 export const authSetAvatar =
-  ({ processedPhoto }) =>
+  ({ image }) =>
   async (dispatch) => {
     try {
+      const response = await fetch(image);
+      const file = await response.blob();
+      const postId = Date.now();
+      const reference = ref(storage, `images/${postId}`);
+
+      const result = await uploadBytesResumable(reference, file);
+      const processedPhoto = await getDownloadURL(result.ref);
       await updateProfile(auth.currentUser, {
         photoURL: processedPhoto,
       });
-      dispatch(updateAvatar(processedPhoto));
+      await dispatch(updateAvatar({ uploadedPhoto: processedPhoto }));
     } catch (error) {
       Alert.alert("Something went wrong. Try again, please");
       console.log("error.message: ", error.message);
     }
   };
+
+export const authDeleteAvatar = () => async (dispatch) => {
+  try {
+    await updateProfile(auth.currentUser, {
+      photoURL: "",
+    });
+    await dispatch(deleteAvatar());
+  } catch (error) {
+    Alert.alert("Something went wrong. Try again, please");
+    console.log("error.message: ", error.message);
+  }
+};
 
 export const authRefresh = () => async (dispatch) => {
   onAuthStateChanged(auth, (user) => {

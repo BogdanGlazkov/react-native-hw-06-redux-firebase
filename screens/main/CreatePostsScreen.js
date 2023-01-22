@@ -15,12 +15,11 @@ import { Camera } from "expo-camera";
 import * as Location from "expo-location";
 import * as ImagePicker from "expo-image-picker";
 import { Feather } from "@expo/vector-icons";
-import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
-import { collection, addDoc } from "firebase/firestore";
-import { storage, db } from "../../firebase/config";
 import {
   getAllPostsFromFirestore,
   getUsersPostsFromFirestore,
+  uploadPhotoToDB,
+  uploadPostToFirestore,
 } from "../../redux/posts/postsOperations";
 import Loader from "../../components/Loader";
 
@@ -53,7 +52,8 @@ const CreatePostsScreen = ({ navigation }) => {
   const [permission, requestPermission] = Camera.useCameraPermissions();
   const dispatch = useDispatch();
 
-  const { userId, login, email } = useSelector((state) => state.auth);
+  const { userId } = useSelector((state) => state.auth);
+  const { uploadedPhoto } = useSelector((state) => state.posts);
 
   const keyboardHide = () => {
     Keyboard.dismiss();
@@ -85,6 +85,25 @@ const CreatePostsScreen = ({ navigation }) => {
     }
   };
 
+  const editPhoto = () => {
+    setPhoto(null);
+  };
+
+  const uploadPost = async () => {
+    if (!photo) return;
+    await dispatch(uploadPhotoToDB({ photo }));
+    if (!uploadedPhoto) return;
+    await dispatch(
+      uploadPostToFirestore({
+        createdPhoto: uploadedPhoto,
+        title,
+        locationTitle,
+        location,
+        userId,
+      })
+    );
+  };
+
   const sendPhoto = async () => {
     setIsLoading(true);
     await uploadPost();
@@ -96,48 +115,6 @@ const CreatePostsScreen = ({ navigation }) => {
     await setLocationTitle("");
     await navigation.navigate("Posts");
     await setIsLoading(false);
-  };
-
-  const editPhoto = () => {
-    setPhoto(null);
-  };
-
-  const uploadPhoto = async () => {
-    if (!photo) {
-      return;
-    }
-    try {
-      const response = await fetch(photo);
-      const file = await response.blob();
-      const postId = Date.now().toString();
-      const reference = ref(storage, `images/${postId}`);
-
-      const result = await uploadBytesResumable(reference, file);
-      const processedPhoto = await getDownloadURL(result.ref);
-      return processedPhoto;
-    } catch (error) {
-      Alert.alert("Something went wrong. Try again, please");
-      console.log("error.message: ", error.message);
-    }
-  };
-
-  const uploadPost = async () => {
-    try {
-      const createdPhoto = await uploadPhoto();
-
-      await addDoc(collection(db, "posts"), {
-        photoUrl: createdPhoto,
-        title,
-        locationTitle,
-        location,
-        likes: 0,
-        comments: 0,
-        owner: userId,
-      });
-    } catch (error) {
-      Alert.alert("Something went wrong. Try again, please");
-      console.log("error.message: ", error.message);
-    }
   };
 
   if (!permission?.granted) {
@@ -162,10 +139,6 @@ const CreatePostsScreen = ({ navigation }) => {
     );
   }
 
-  if (isLoading) {
-    return <Loader />;
-  }
-
   return (
     <TouchableWithoutFeedback onPress={keyboardHide}>
       <View style={styles.container}>
@@ -184,93 +157,103 @@ const CreatePostsScreen = ({ navigation }) => {
           </View>
         </View>
 
-        <View style={styles.postsContainer}>
-          <View style={styles.post}>
-            <View style={styles.photo}>
-              {photo ? (
-                <>
-                  <Image style={styles.takenPhoto} source={{ uri: photo }} />
-                  <TouchableOpacity
-                    style={{
-                      ...styles.photoIconWrp,
-                      backgroundColor: "rgba(255, 255, 255, 0.3)",
-                    }}
-                    onPress={editPhoto}
-                  >
-                    <Image style={styles.photoIcon} source={icons.cameraEdit} />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.photoTextWrapper}
-                    onPress={editPhoto}
-                  >
-                    <Text style={styles.photoText}>Edit photo</Text>
-                  </TouchableOpacity>
-                </>
-              ) : (
-                <>
-                  <View style={styles.photoInput}>
-                    <Camera style={styles.camera} ref={setCamera}>
-                      <TouchableOpacity
-                        style={styles.photoIconWrp}
-                        onPress={takePhoto}
-                      >
-                        <Image style={styles.photoIcon} source={icons.camera} />
-                      </TouchableOpacity>
-                    </Camera>
-                  </View>
-                  <TouchableOpacity
-                    style={styles.photoTextWrapper}
-                    onPress={pickPhoto}
-                  >
-                    <Text style={styles.photoText}>Download photo</Text>
-                  </TouchableOpacity>
-                </>
-              )}
-            </View>
+        {isLoading ? (
+          <Loader />
+        ) : (
+          <View style={styles.postsContainer}>
+            <View style={styles.post}>
+              <View style={styles.photo}>
+                {photo ? (
+                  <>
+                    <Image style={styles.takenPhoto} source={{ uri: photo }} />
+                    <TouchableOpacity
+                      style={{
+                        ...styles.photoIconWrp,
+                        backgroundColor: "rgba(255, 255, 255, 0.3)",
+                      }}
+                      onPress={editPhoto}
+                    >
+                      <Image
+                        style={styles.photoIcon}
+                        source={icons.cameraEdit}
+                      />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.photoTextWrapper}
+                      onPress={editPhoto}
+                    >
+                      <Text style={styles.photoText}>Edit photo</Text>
+                    </TouchableOpacity>
+                  </>
+                ) : (
+                  <>
+                    <View style={styles.photoInput}>
+                      <Camera style={styles.camera} ref={setCamera}>
+                        <TouchableOpacity
+                          style={styles.photoIconWrp}
+                          onPress={takePhoto}
+                        >
+                          <Image
+                            style={styles.photoIcon}
+                            source={icons.camera}
+                          />
+                        </TouchableOpacity>
+                      </Camera>
+                    </View>
+                    <TouchableOpacity
+                      style={styles.photoTextWrapper}
+                      onPress={pickPhoto}
+                    >
+                      <Text style={styles.photoText}>Download photo</Text>
+                    </TouchableOpacity>
+                  </>
+                )}
+              </View>
 
-            <View style={styles.inputWrapper}>
-              <TextInput
-                style={{ ...styles.input, fontWeight: "500" }}
-                placeholder="Title..."
-                placeholderTextColor="#BDBDBD"
-                value={title}
-                onChangeText={(value) => setTitle(value)}
-              />
-            </View>
-            <View style={styles.inputWrapper}>
-              <Feather name={"map-pin"} size={18} color="#BDBDBD" />
-              <TextInput
-                style={{ ...styles.input, marginLeft: 8 }}
-                placeholder="Location..."
-                placeholderTextColor="#BDBDBD"
-                value={locationTitle}
-                onChangeText={(value) => setLocationTitle(value)}
-              />
-            </View>
+              <View style={styles.inputWrapper}>
+                <TextInput
+                  style={{ ...styles.input, fontWeight: "500" }}
+                  placeholder="Title..."
+                  placeholderTextColor="#BDBDBD"
+                  value={title}
+                  onChangeText={(value) => setTitle(value)}
+                />
+              </View>
+              <View style={styles.inputWrapper}>
+                <Feather name={"map-pin"} size={18} color="#BDBDBD" />
+                <TextInput
+                  style={{ ...styles.input, marginLeft: 8 }}
+                  placeholder="Location..."
+                  placeholderTextColor="#BDBDBD"
+                  value={locationTitle}
+                  onChangeText={(value) => setLocationTitle(value)}
+                />
+              </View>
 
-            <TouchableOpacity
-              activeOpacity={0.8}
-              style={{
-                ...styles.btn,
-                backgroundColor: photo ? "#FF6C00" : "#F6F6F6",
-              }}
-              disabled={!photo}
-              onPress={sendPhoto}
-            >
-              <Text
+              <TouchableOpacity
+                activeOpacity={0.8}
                 style={{
-                  ...styles.btnTitle,
-                  color: photo ? "#FFFFFF" : "#BDBDBD",
+                  ...styles.btn,
+                  backgroundColor: photo ? "#FF6C00" : "#F6F6F6",
                 }}
+                disabled={!photo}
+                onPress={sendPhoto}
               >
-                Create post
-              </Text>
+                <Text
+                  style={{
+                    ...styles.btnTitle,
+                    color: photo ? "#FFFFFF" : "#BDBDBD",
+                  }}
+                >
+                  Create post
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity style={styles.delete} disabled={!photo}>
+              <Feather name={"trash-2"} size={24} color="#BDBDBD" />
             </TouchableOpacity>
           </View>
-          <TouchableOpacity style={styles.delete} disabled={!photo}>
-            <Feather name={"trash-2"} size={24} color="#BDBDBD" />
-          </TouchableOpacity>
-        </View>
+        )}
       </View>
     </TouchableWithoutFeedback>
   );

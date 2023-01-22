@@ -12,7 +12,7 @@ import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { db, storage } from "../../firebase/config";
 import { postsSlice } from "./postsReducer";
 
-const { getAllPosts, getUsersPosts, getComments, getPhoto } =
+const { getAllPosts, getUsersPosts, getComments, getPhoto, clearPhoto } =
   postsSlice.actions;
 
 export const getAllPostsFromFirestore = () => async (dispatch) => {
@@ -80,28 +80,30 @@ export const uploadCommentToFirestore =
     }
   };
 
-export const uploadPhotoToDB = (photo) => async (dispatch) => {
-  try {
-    const response = await fetch(photo);
-    const file = await response.blob();
-    const postId = Date.now();
-    const reference = ref(storage, `images/${postId}`);
+export const uploadPhotoToDB =
+  ({ photo }) =>
+  async (dispatch) => {
+    try {
+      const response = await fetch(photo);
+      const file = await response.blob();
+      const postId = Date.now();
+      const reference = ref(storage, `images/${postId}`);
 
-    const result = await uploadBytesResumable(reference, file);
-    const processedPhoto = await getDownloadURL(result.ref);
-    await dispatch(getPhoto({ uploadedPhoto: processedPhoto.toString() }));
-  } catch (error) {
-    Alert.alert("Something went wrong. Try again, please");
-    console.log("error.message: ", error.message);
-  }
-};
+      const result = await uploadBytesResumable(reference, file);
+      const processedPhoto = await getDownloadURL(result.ref);
+      await dispatch(getPhoto({ uploadedPhoto: processedPhoto }));
+    } catch (error) {
+      Alert.alert("Something went wrong. Try again, please");
+      console.log("error.message: ", error.message);
+    }
+  };
 
 export const uploadPostToFirestore =
-  ({ uploadedPhoto, title, locationTitle, location, userId }) =>
+  ({ createdPhoto, title, locationTitle, location, userId }) =>
   async (dispatch) => {
     try {
       await addDoc(collection(db, "posts"), {
-        photoUrl: uploadedPhoto.toString(),
+        photoUrl: createdPhoto,
         title,
         locationTitle,
         location,
@@ -115,3 +117,12 @@ export const uploadPostToFirestore =
       console.log("error.message: ", error.message);
     }
   };
+
+export const clearPhotoFromState = () => async (dispatch) => {
+  try {
+    await dispatch(clearPhoto());
+  } catch (error) {
+    Alert.alert("Something went wrong. Try again, please");
+    console.log("error.message: ", error.message);
+  }
+};

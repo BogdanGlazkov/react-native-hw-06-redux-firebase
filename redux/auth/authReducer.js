@@ -21,7 +21,11 @@ export const authSlice = createSlice({
     }),
     updateAvatar: (state, { payload }) => ({
       ...state,
-      photoURL: payload.processedPhoto,
+      ...payload,
+    }),
+    deleteAvatar: (state) => ({
+      ...state,
+      photoURL: null,
     }),
     authStateChange: (state, { payload }) => ({
       ...state,

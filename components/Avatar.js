@@ -3,12 +3,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { View, Image, TouchableOpacity, StyleSheet } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Feather } from "@expo/vector-icons";
-import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
-import { updateProfile, getAuth } from "firebase/auth";
-import { storage, appFirebase } from "../firebase/config";
-import { authRefresh } from "../redux/auth/authOperations";
-
-const auth = getAuth(appFirebase);
+import {
+  authRefresh,
+  authSetAvatar,
+  authDeleteAvatar,
+} from "../redux/auth/authOperations";
 
 export default function Avatar() {
   const [image, setImage] = useState(null);
@@ -27,40 +26,16 @@ export default function Avatar() {
     }
   };
 
-  const deleteAvatar = async () => {
-    try {
-      setImage(null);
-      await updateProfile(auth.currentUser, {
-        photoURL: "",
-      });
-      await dispatch(authRefresh());
-    } catch (error) {
-      console.log("error.message: ", error.message);
-    }
+  const uploadAvatar = async () => {
+    await pickAvatar();
+    if (!image) return;
+    await dispatch(authSetAvatar({ image }));
+    await dispatch(authRefresh());
   };
 
-  const uploadAvatar = async () => {
-    try {
-      await pickAvatar();
-      if (!image) {
-        return;
-      }
-      const response = await fetch(image);
-      const file = await response.blob();
-      const postId = Date.now().toString();
-      const reference = ref(storage, `images/${postId}`);
-
-      const result = await uploadBytesResumable(reference, file);
-      const processedPhoto = await getDownloadURL(result.ref);
-
-      await setImage(processedPhoto);
-      await updateProfile(auth.currentUser, {
-        photoURL: processedPhoto,
-      });
-      await dispatch(authRefresh());
-    } catch (error) {
-      console.log("error.message: ", error.message);
-    }
+  const deleteAvatar = async () => {
+    await dispatch(authDeleteAvatar());
+    await dispatch(authRefresh());
   };
 
   return (
