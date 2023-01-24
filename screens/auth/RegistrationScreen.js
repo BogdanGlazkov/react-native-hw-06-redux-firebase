@@ -20,7 +20,6 @@ const initialState = {
   login: "",
   email: "",
   password: "",
-  image: "",
 };
 
 export default function RegistrationScreen({ navigation }) {
@@ -50,11 +49,10 @@ export default function RegistrationScreen({ navigation }) {
     Keyboard.dismiss();
   };
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     keyboardHide();
-    setState((prevState) => ({ ...prevState, image: photoURL }));
-    dispatch(authSignUp(state));
-    setState(initialState);
+    await dispatch(authSignUp({ ...state, image: photoURL }));
+    await setState(initialState);
   };
 
   return (

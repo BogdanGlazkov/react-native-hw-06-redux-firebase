@@ -62,7 +62,7 @@ export const authLogIn =
   };
 
 export const authSetAvatar =
-  ({ image }) =>
+  ({ image, stateChange }) =>
   async (dispatch) => {
     try {
       const response = await fetch(image);
@@ -72,27 +72,32 @@ export const authSetAvatar =
 
       const result = await uploadBytesResumable(reference, file);
       const processedPhoto = await getDownloadURL(result.ref);
-      await updateProfile(auth.currentUser, {
-        photoURL: processedPhoto,
-      });
-      await dispatch(updateAvatar({ uploadedPhoto: processedPhoto }));
+      await dispatch(updateAvatar({ photoURL: processedPhoto }));
+
+      stateChange &&
+        updateProfile(auth.currentUser, {
+          photoURL: processedPhoto,
+        });
     } catch (error) {
       Alert.alert("Something went wrong. Try again, please");
       console.log("error.message: ", error.message);
     }
   };
 
-export const authDeleteAvatar = () => async (dispatch) => {
-  try {
-    await updateProfile(auth.currentUser, {
-      photoURL: "",
-    });
-    await dispatch(deleteAvatar());
-  } catch (error) {
-    Alert.alert("Something went wrong. Try again, please");
-    console.log("error.message: ", error.message);
-  }
-};
+export const authDeleteAvatar =
+  ({ stateChange }) =>
+  async (dispatch) => {
+    try {
+      await dispatch(deleteAvatar());
+      stateChange &&
+        updateProfile(auth.currentUser, {
+          photoURL: "",
+        });
+    } catch (error) {
+      Alert.alert("Something went wrong. Try again, please");
+      console.log("error.message: ", error.message);
+    }
+  };
 
 export const authRefresh = () => async (dispatch) => {
   onAuthStateChanged(auth, (user) => {

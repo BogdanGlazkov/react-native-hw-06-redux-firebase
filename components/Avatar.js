@@ -3,15 +3,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { View, Image, TouchableOpacity, StyleSheet } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Feather } from "@expo/vector-icons";
-import {
-  authRefresh,
-  authSetAvatar,
-  authDeleteAvatar,
-} from "../redux/auth/authOperations";
+import { authSetAvatar, authDeleteAvatar } from "../redux/auth/authOperations";
 
 export default function Avatar() {
   const [image, setImage] = useState(null);
-  const { photoURL } = useSelector((state) => state.auth);
+  const { photoURL, stateChange } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
   const pickAvatar = async () => {
@@ -29,13 +25,11 @@ export default function Avatar() {
   const uploadAvatar = async () => {
     await pickAvatar();
     if (!image) return;
-    await dispatch(authSetAvatar({ image }));
-    await dispatch(authRefresh());
+    await dispatch(authSetAvatar({ image, stateChange }));
   };
 
   const deleteAvatar = async () => {
-    await dispatch(authDeleteAvatar());
-    await dispatch(authRefresh());
+    await dispatch(authDeleteAvatar({ stateChange }));
   };
 
   return (
