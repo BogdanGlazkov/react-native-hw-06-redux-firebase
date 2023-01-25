@@ -1,7 +1,8 @@
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
+import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Image } from "react-native";
+import { View } from "react-native";
 import { Feather } from "@expo/vector-icons";
 
 import LoginScreen from "./screens/auth/LoginScreen";
@@ -37,14 +38,21 @@ const useRoute = (isAuth) => {
       screenOptions={{
         tabBarShowLabel: false,
         tabBarHideOnKeyboard: true,
-        tabBarStyle: [{ paddingHorizontal: 40 }, null],
+        tabBarStyle: [{ paddingHorizontal: 40, paddingVertical: 10 }, null],
       }}
     >
       <MainStack.Screen
-        options={{
-          headerShown: false,
+        options={({ route }) => ({
           tabBarIcon: () => <Feather name="grid" size={24} color="#212121" />,
-        }}
+          headerShown: false,
+          tabBarStyle: ((route) => {
+            const routeName = getFocusedRouteNameFromRoute(route) ?? "";
+            if (routeName === "Map" || routeName === "Comments") {
+              return { display: "none" };
+            }
+            return { paddingHorizontal: 40, paddingVertical: 10 };
+          })(route),
+        })}
         name="Home"
         component={Home}
       />
@@ -52,7 +60,18 @@ const useRoute = (isAuth) => {
         options={{
           headerShown: false,
           tabBarIcon: () => (
-            <Image source={require("./assets/images/new.png")} />
+            <View
+              style={{
+                width: 70,
+                height: 40,
+                backgroundColor: "#FF6C00",
+                justifyContent: "center",
+                alignItems: "center",
+                borderRadius: 20,
+              }}
+            >
+              <Feather name="plus" size={14} color="#FFFFFF" />
+            </View>
           ),
           tabBarStyle: {
             display: "none",

@@ -12,8 +12,7 @@ import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { db, storage } from "../../firebase/config";
 import { postsSlice } from "./postsReducer";
 
-const { getAllPosts, getUsersPosts, getComments, getPhoto, clearPhoto } =
-  postsSlice.actions;
+const { getAllPosts, getUsersPosts, getComments } = postsSlice.actions;
 
 export const getAllPostsFromFirestore = () => async (dispatch) => {
   try {
@@ -22,7 +21,7 @@ export const getAllPostsFromFirestore = () => async (dispatch) => {
       .map((doc) => {
         return { ...doc.data(), id: doc.id };
       })
-      .sort((a, b) => a.date < b.date);
+      .sort((a, b) => Number(b.date) - Number(a.date));
     dispatch(getAllPosts({ allPosts }));
   } catch (error) {
     Alert.alert("Something went wrong. Try again, please");
@@ -38,7 +37,7 @@ export const getUsersPostsFromFirestore = (userId) => async (dispatch) => {
       .map((doc) => {
         return { ...doc.data(), id: doc.id };
       })
-      .sort((a, b) => a.date < b.date);
+      .sort((a, b) => Number(b.date) - Number(a.date));
     dispatch(getUsersPosts({ usersPosts }));
   } catch (error) {
     Alert.alert("Something went wrong. Try again, please");
@@ -52,7 +51,9 @@ export const getCommentsFromFirestore = (postId) => async (dispatch) => {
       collection(db, `posts/${postId}/comments`)
     );
     const commentsColl = querySnapshot.docs.map((doc) => doc.data());
-    const sortedComments = commentsColl.sort((a, b) => a.date > b.date);
+    const sortedComments = commentsColl.sort(
+      (a, b) => Number(a.date) - Number(b.date)
+    );
     dispatch(getComments({ sortedComments }));
   } catch (error) {
     Alert.alert("Something went wrong. Try again, please");
@@ -80,8 +81,8 @@ export const uploadCommentToFirestore =
     }
   };
 
-export const uploadPhotoToDB =
-  ({ photo }) =>
+export const uploadPostToFirestore =
+  ({ photo, title, locationTitle, location, userId }) =>
   async (dispatch) => {
     try {
       const response = await fetch(photo);
@@ -91,19 +92,9 @@ export const uploadPhotoToDB =
 
       const result = await uploadBytesResumable(reference, file);
       const processedPhoto = await getDownloadURL(result.ref);
-      await dispatch(getPhoto({ uploadedPhoto: processedPhoto }));
-    } catch (error) {
-      Alert.alert("Something went wrong. Try again, please");
-      console.log("error.message: ", error.message);
-    }
-  };
 
-export const uploadPostToFirestore =
-  ({ createdPhoto, title, locationTitle, location, userId }) =>
-  async (dispatch) => {
-    try {
       await addDoc(collection(db, "posts"), {
-        photoUrl: createdPhoto,
+        photoUrl: processedPhoto,
         title,
         locationTitle,
         location,
@@ -117,12 +108,3 @@ export const uploadPostToFirestore =
       console.log("error.message: ", error.message);
     }
   };
-
-export const clearPhotoFromState = () => async (dispatch) => {
-  try {
-    await dispatch(clearPhoto());
-  } catch (error) {
-    Alert.alert("Something went wrong. Try again, please");
-    console.log("error.message: ", error.message);
-  }
-};

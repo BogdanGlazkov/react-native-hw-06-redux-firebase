@@ -9,7 +9,6 @@ import {
   Image,
   TextInput,
   Keyboard,
-  Alert,
 } from "react-native";
 import { Camera } from "expo-camera";
 import * as Location from "expo-location";
@@ -18,7 +17,6 @@ import { Feather } from "@expo/vector-icons";
 import {
   getAllPostsFromFirestore,
   getUsersPostsFromFirestore,
-  uploadPhotoToDB,
   uploadPostToFirestore,
 } from "../../redux/posts/postsOperations";
 import Loader from "../../components/Loader";
@@ -53,7 +51,6 @@ const CreatePostsScreen = ({ navigation }) => {
   const dispatch = useDispatch();
 
   const { userId } = useSelector((state) => state.auth);
-  const { uploadedPhoto } = useSelector((state) => state.posts);
 
   const keyboardHide = () => {
     Keyboard.dismiss();
@@ -91,30 +88,28 @@ const CreatePostsScreen = ({ navigation }) => {
 
   const uploadPost = async () => {
     if (!photo) return;
-    await dispatch(uploadPhotoToDB({ photo }));
-    if (!uploadedPhoto) return;
     await dispatch(
       uploadPostToFirestore({
-        createdPhoto: uploadedPhoto,
+        photo,
         title,
         locationTitle,
         location,
         userId,
       })
     );
+    await dispatch(getAllPostsFromFirestore());
+    await dispatch(getUsersPostsFromFirestore(userId));
   };
 
   const sendPhoto = async () => {
     setIsLoading(true);
-    await uploadPost();
-    await dispatch(getAllPostsFromFirestore());
-    await dispatch(getUsersPostsFromFirestore(userId));
-    await setPhoto(null);
-    await setTitle("");
-    await setLocation(defaultLocation);
-    await setLocationTitle("");
-    await navigation.navigate("Posts");
-    await setIsLoading(false);
+    uploadPost();
+    setTitle("");
+    setLocation(defaultLocation);
+    setLocationTitle("");
+    setPhoto(null);
+    navigation.navigate("Posts");
+    setIsLoading(false);
   };
 
   if (!permission?.granted) {

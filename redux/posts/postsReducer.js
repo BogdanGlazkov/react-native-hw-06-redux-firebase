@@ -4,7 +4,6 @@ const initialState = {
   allPosts: [],
   usersPosts: [],
   comments: [],
-  uploadedPhoto: "",
 };
 
 export const postsSlice = createSlice({
@@ -22,14 +21,6 @@ export const postsSlice = createSlice({
     getComments: (state, { payload }) => ({
       ...state,
       comments: payload.sortedComments,
-    }),
-    getPhoto: (state, { payload }) => ({
-      ...state,
-      ...payload,
-    }),
-    clearPhoto: (state) => ({
-      ...state,
-      uploadedPhoto: "",
     }),
     postsLogOut: () => initialState,
   },

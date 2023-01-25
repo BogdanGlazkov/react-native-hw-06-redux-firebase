@@ -49,7 +49,7 @@ const CommentsScreen = ({ route }) => {
         </View>
 
         <FlatList
-          style={{ height: 200 }}
+          style={{ height: "40%" }}
           data={comments}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => (
