@@ -86,6 +86,13 @@ const CreatePostsScreen = ({ navigation }) => {
     setPhoto(null);
   };
 
+  const clearState = () => {
+    setTitle("");
+    setLocation(defaultLocation);
+    setLocationTitle("");
+    setPhoto(null);
+  };
+
   const uploadPost = async () => {
     if (!photo) return;
     await dispatch(
@@ -103,13 +110,10 @@ const CreatePostsScreen = ({ navigation }) => {
 
   const sendPhoto = async () => {
     setIsLoading(true);
-    uploadPost();
-    setTitle("");
-    setLocation(defaultLocation);
-    setLocationTitle("");
-    setPhoto(null);
-    navigation.navigate("Posts");
-    setIsLoading(false);
+    await uploadPost();
+    await clearState();
+    await navigation.navigate("Posts");
+    await setIsLoading(false);
   };
 
   if (!permission?.granted) {
@@ -244,7 +248,7 @@ const CreatePostsScreen = ({ navigation }) => {
                 </Text>
               </TouchableOpacity>
             </View>
-            <TouchableOpacity style={styles.delete} disabled={!photo}>
+            <TouchableOpacity style={styles.delete} onPress={clearState}>
               <Feather name={"trash-2"} size={24} color="#BDBDBD" />
             </TouchableOpacity>
           </View>
